@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brand Intake Form</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #FAF8F4;
+  --ink:     #1E1A17;
+  --muted:   #8C7B6E;
+  --terra:   #B07848;
+  --sand:    #DDD4C8;
+  --card:    #F2EBE0;
+  --card2:   #EDE3D6;
+  --border:  rgba(176,120,72,0.18);
+  --radius:  10px;
+}
+
+html { font-size: 16px; }
+body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; }
+
+nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 48px; border-bottom: 1px solid var(--border); }
+.nav-logo { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--ink); }
+.nav-step  { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+
+.page { display: grid; grid-template-columns: 420px 1fr; min-height: calc(100vh - 65px); }
+
+/* LEFT */
+.left { padding: 44px 44px 44px; border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; max-height: calc(100vh - 65px); }
+.step-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--terra); margin-bottom: 12px; }
+.left h1 { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1.25; color: var(--ink); margin-bottom: 8px; font-weight: 400; }
+.left-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 32px; }
+
+.field { margin-bottom: 22px; }
+.field-label { display: block; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; font-weight: 500; }
+.field-hint  { font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.55; font-style: italic; }
+
+input[type="text"], input[type="number"], textarea {
+  width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--sand);
+  padding: 9px 0; font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 300; color: var(--ink);
+  outline: none; transition: border-color 0.2s; border-radius: 0;
+}
+input[type="text"]:focus, input[type="number"]:focus, textarea:focus { border-bottom-color: var(--terra); }
+input::placeholder, textarea::placeholder { color: var(--sand); }
+textarea { resize: none; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+.sel-wrap { position: relative; }
+.sel-wrap select {
+  width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--sand);
+  padding: 9px 0; font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 300; color: var(--ink);
+  outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; cursor: pointer;
+}
+.sel-wrap select:focus { border-bottom-color: var(--terra); }
+.sel-wrap::after {
+  content: ''; position: absolute; right: 2px; top: 50%;
+  width: 6px; height: 6px; border-right: 1px solid var(--muted); border-bottom: 1px solid var(--muted);
+  transform: translateY(-70%) rotate(45deg); pointer-events: none;
+}
+
+/* ── NESTED CATEGORY SELECTOR ── */
+.cat-section { margin-bottom: 20px; }
+
+.step-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); font-weight: 500; margin-bottom: 10px;
+}
+.step-badge {
+  width: 19px; height: 19px; border-radius: 50%;
+  background: var(--sand); color: var(--ink);
+  font-size: 9.5px; font-weight: 500;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+.step-badge.on   { background: var(--terra); color: #fff; }
+.step-badge.done { background: var(--ink);   color: #fff; }
+
+/* group grid */
+.group-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.group-btn {
+  padding: 10px 12px; border: 1px solid var(--sand); border-radius: var(--radius);
+  background: transparent; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: left; transition: all 0.14s;
+}
+.group-btn:hover { border-color: var(--terra); }
+.group-btn.active { background: var(--ink); border-color: var(--ink); }
+.g-icon  { font-size: 15px; display: block; margin-bottom: 3px; }
+.g-name  { font-size: 12.5px; font-weight: 500; color: var(--ink); display: block; margin-bottom: 1px; transition: color 0.14s; }
+.g-count { font-size: 10px; color: var(--muted); transition: color 0.14s; }
+.group-btn.active .g-name  { color: var(--bg); }
+.group-btn.active .g-count { color: rgba(250,248,244,0.5); }
+
+/* type pills */
+.type-pills { display: flex; flex-wrap: wrap; gap: 6px; animation: fadeUp 0.18s ease; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform: none; } }
+.type-pill {
+  padding: 6px 13px; border-radius: 99px; border: 1px solid var(--sand);
+  background: transparent; font-size: 12px; font-family: 'DM Sans', sans-serif;
+  color: var(--muted); cursor: pointer; transition: all 0.13s;
+}
+.type-pill:hover  { border-color: var(--terra); color: var(--terra); }
+.type-pill.active { background: var(--terra); border-color: var(--terra); color: #fff; }
+
+/* selection crumb */
+.crumb {
+  display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted);
+  padding: 8px 10px; background: var(--card); border-radius: var(--radius); margin-top: 10px;
+}
+.crumb-g { font-weight: 500; color: var(--ink); }
+.crumb-a { color: var(--sand); font-size: 10px; }
+.crumb-t { color: var(--terra); font-weight: 500; }
+.crumb-x { margin-left: auto; font-size: 10px; cursor: pointer; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; text-decoration: underline; }
+.crumb-x:hover { color: var(--ink); }
+
+/* submit */
+.submit-area { margin-top: auto; padding-top: 28px; }
+.btn-primary {
+  width: 100%; padding: 14px; background: var(--ink); color: var(--bg);
+  border: none; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+  transition: background 0.18s; border-radius: 2px;
+}
+.btn-primary:hover { background: var(--terra); }
+.btn-note { font-size: 11px; color: var(--muted); font-style: italic; text-align: center; margin-top: 8px; }
+
+/* RIGHT */
+.right { padding: 44px 52px 52px; overflow-y: auto; max-height: calc(100vh - 65px); }
+.right-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 30px; }
+.right-title  { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400; color: var(--ink); }
+.right-count  { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 16px; text-align: center; }
+.empty-ring { width: 54px; height: 54px; border-radius: 50%; border: 1px dashed var(--sand); display: flex; align-items: center; justify-content: center; }
+.empty h3 { font-family: 'DM Serif Display', serif; font-size: 17px; font-weight: 400; }
+.empty p  { font-size: 13px; color: var(--muted); line-height: 1.65; max-width: 260px; }
+
+.section-block { margin-bottom: 38px; }
+.section-title { font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--terra); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+.f-item { display: grid; grid-template-columns: 1fr auto; align-items: start; column-gap: 14px; padding: 15px 0; border-bottom: 1px solid rgba(176,120,72,0.09); animation: rise 0.2s ease both; }
+.f-item:last-child { border-bottom: none; }
+@keyframes rise { from { opacity:0; transform: translateY(5px); } to { opacity:1; transform: none; } }
+.f-name { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; grid-column: 1; }
+.f-desc { font-size: 11.5px; color: var(--muted); line-height: 1.6; margin-bottom: 8px; grid-column: 1; }
+.f-input-wrap { grid-column: 1; }
+.f-tag { grid-column: 2; grid-row: 1; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 9px; border-radius: 99px; font-weight: 500; white-space: nowrap; margin-top: 2px; }
+.f-tag.req { background: #F2E8DB; color: var(--terra); }
+.f-tag.upl { background: #E5EEF5; color: #4A7AA6; }
+.f-tag.opt { border: 1px solid var(--sand); color: var(--muted); background: transparent; }
+
+.upload-zone { display: flex; align-items: center; gap: 9px; padding: 10px 13px; border: 1px dashed var(--sand); border-radius: var(--radius); font-size: 12px; color: var(--muted); cursor: pointer; font-style: italic; transition: border-color 0.14s, background 0.14s; }
+.upload-zone:hover { border-color: var(--terra); background: rgba(176,120,72,0.03); }
+
+.f-input { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--sand); padding: 8px 0; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 300; color: var(--ink); outline: none; transition: border-color 0.14s; }
+.f-input:focus { border-bottom-color: var(--terra); }
+.f-input::placeholder { color: var(--sand); }
+.f-textarea { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--sand); padding: 8px 0; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 300; color: var(--ink); outline: none; resize: none; transition: border-color 0.14s; }
+.f-textarea:focus { border-bottom-color: var(--terra); }
+.f-textarea::placeholder { color: var(--sand); }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Sourcing Studio</div>
+  <div class="nav-step">Step 01 — Brand Intake</div>
+</nav>
+
+<div class="page">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="step-label">New project</div>
+    <h1>Tell us about<br><em>your project</em></h1>
+    <p class="left-desc">Fill in the basics. Select a category group, then pick the specific item — the right panel will surface every detail we need before we contact a single supplier.</p>
+
+    <div class="field">
+      <label class="field-label">Brand name</label>
+      <input type="text" placeholder="e.g. Solflare, MonkeDAO…" />
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="cat-section">
+      <div class="step-row">
+        <span class="step-badge on" id="b1">1</span>
+        Category group
+      </div>
+      <div class="group-grid" id="groupGrid"></div>
+    </div>
+
+    <!-- STEP 2 (hidden until group selected) -->
+    <div class="cat-section hidden" id="step2Wrap">
+      <div class="step-row">
+        <span class="step-badge" id="b2">2</span>
+        <span id="step2Label">Product type</span>
+      </div>
+      <div class="type-pills" id="typePills"></div>
+    </div>
+
+    <!-- Crumb (hidden until type selected) -->
+    <div class="crumb hidden" id="crumb">
+      <span class="crumb-g" id="cg"></span>
+      <span class="crumb-a">›</span>
+      <span class="crumb-t" id="ct"></span>
+      <span class="crumb-x" id="cx">Change</span>
+    </div>
+
+    <div class="field" style="margin-top:6px;">
+      <label class="field-label">Est. order quantity</label>
+      <input type="number" placeholder="e.g. 500" min="1" />
+      <div class="field-hint">Rough estimate — helps us set price expectations</div>
+    </div>
+
+    <div class="two-col">
+      <div class="field">
+        <label class="field-label">Target unit cost</label>
+        <input type="text" placeholder="e.g. under $8" />
+      </div>
+      <div class="field">
+        <label class="field-label">Platform</label>
+        <div class="sel-wrap">
+          <select>
+            <option value="">Advise me</option>
+            <option>Alibaba (quality-first)</option>
+            <option>1688 (cost-first)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Notes / references</label>
+      <textarea rows="3" placeholder="Inspiration, deadline, anything else…"></textarea>
+    </div>
+
+    <div class="submit-area">
+      <button class="btn-primary">Submit intake</button>
+      <p class="btn-note">We'll follow up within 24 hours</p>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="right-header">
+      <span class="right-title" id="rTitle">Product details</span>
+      <span class="right-count" id="rCount"></span>
+    </div>
+    <div id="emptyState" class="empty">
+      <div class="empty-ring">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="8" stroke="#B07848" stroke-width="1"/>
+          <path d="M10 6v8M6 10h8" stroke="#B07848" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3>No item selected yet</h3>
+      <p>Choose a category group on the left, then pick a specific item type — all required fields will appear here.</p>
+    </div>
+    <div id="fieldArea" class="hidden"></div>
+  </div>
+</div>
+
+<script>
+const GROUPS = [
+  { id:"apparel",    name:"Apparel",              icon:"👕", count:"8 types",
+    types:[{id:"tshirt",name:"T-Shirt"},{id:"buttondown",name:"Button-Down Shirt"},{id:"hoodie",name:"Hoodie"},{id:"crewneck",name:"Crewneck Sweatshirt"},{id:"tanktop",name:"Tank Top"},{id:"shorts",name:"Shorts"},{id:"hat",name:"Cap / Hat"},{id:"socks",name:"Socks"}]},
+  { id:"toys",       name:"Toys & Collectibles",  icon:"🧸", count:"5 types",
+    types:[{id:"plush",name:"Plushie"},{id:"blindbox",name:"Blind Box"},{id:"actionfig",name:"Action Figure"},{id:"childplush",name:"Children's Plush"},{id:"minifig",name:"Mini Figure / Vinyl Toy"}]},
+  { id:"home",       name:"Home & Lifestyle",     icon:"🕯️", count:"5 types",
+    types:[{id:"candle",name:"Candle"},{id:"mug",name:"Mug / Cup"},{id:"poster",name:"Art Print / Poster"},{id:"pillow",name:"Throw Pillow"},{id:"notebook",name:"Notebook / Journal"}]},
+  { id:"accessories",name:"Accessories",          icon:"👜", count:"5 types",
+    types:[{id:"tote",name:"Tote Bag"},{id:"backpack",name:"Backpack"},{id:"phonecase",name:"Phone Case"},{id:"keychain",name:"Keychain / Charm"},{id:"patch",name:"Embroidered Patch"}]},
+  { id:"stationery", name:"Stationery & Print",   icon:"📄", count:"4 types",
+    types:[{id:"sticker",name:"Sticker / Sheet"},{id:"card",name:"Collector Card"},{id:"packaging",name:"Custom Box / Packaging"},{id:"zine",name:"Zine / Booklet"}]},
+  { id:"other",      name:"Other",                icon:"✦",  count:"Custom",
+    types:[{id:"custom",name:"Describe my item"}]},
+];
+
+const UPL = (name,desc) => ({name,tag:"upl",desc,type:"upload"});
+const REQ = (name,desc,ph) => ({name,tag:"req",desc,ph});
+const OPT = (name,desc,ph) => ({name,tag:"opt",desc,ph});
+
+const APPAREL_AUX = [
+  OPT("Custom neck / collar tag?",undefined,"Yes / No — if yes, describe"),
+  OPT("Custom care / wash tag?",undefined,"Yes / No"),
+  UPL("Custom hang tag","Upload design file if you have one."),
+];
+
+const CATALOG = {
+  tshirt:{ label:"T-Shirt", sections:[
+    {title:"Design & branding", fields:[
+      UPL("Logo file","Vector preferred (AI, EPS, PDF). PNG at 300dpi minimum."),
+      REQ("Logo placement","Where on the garment?","e.g. center chest + back"),
+      REQ("Logo dimensions","Approx. size in cm. Oversized logos on lightweight fabric can sag — we flag this early.","e.g. 20 × 15 cm"),
+      REQ("Colorways","List each color option. MOQ applies per colorway.","e.g. black, white, sand"),
+    ]},
+    {title:"Garment specs", fields:[
+      OPT("Fabric preference","GSM weight, material blend, texture notes.","e.g. 220gsm cotton, relaxed fit"),
+      REQ("Size range",undefined,"e.g. XS – 3XL"),
+      UPL("Size guide","Upload your size breakdown or reference measurements."),
+      UPL("Silhouette reference","Photo or sketch of the cut — boxy, fitted, oversized, etc."),
+    ]},
+    {title:"Auxiliary / label items", fields: APPAREL_AUX},
+  ]},
+
+  buttondown:{ label:"Button-Down Shirt", sections:[
+    {title:"Design & branding", fields:[
+      UPL("Logo file","Vector preferred."),
+      REQ("Logo placement",undefined,"e.g. left chest, back yoke"),
+      REQ("Colorways","List each garment color.","e.g. white, sky blue, sage"),
+    ]},
+    {title:"Garment specs", fields:[
+      OPT("Fabric preference",undefined,"e.g. linen, rayon, cotton poplin"),
+      REQ("Collar style","Camp collar, spread, Cuban, band, etc.","e.g. camp collar"),
+      REQ("Silhouette / fit",undefined,"e.g. relaxed resort fit"),
+      REQ("Size range",undefined,"e.g. XS – 3XL"),
+      UPL("Size guide",undefined),
+      OPT("Button color / material",undefined,"e.g. coconut shell, bone white"),
+      UPL("Custom print / pattern?","Full AOP or solid with logo only?"),
+    ]},
+    {title:"Auxiliary items", fields: APPAREL_AUX},
+  ]},
+
+  hoodie:{ label:"Hoodie", sections:[
+    {title:"Design & branding", fields:[
+      UPL("Logo / artwork file","Vector preferred."),
+      REQ("Print placement",undefined,"e.g. chest + back"),
+      REQ("Colorways","MOQ per colorway.","e.g. charcoal, cream"),
+    ]},
+    {title:"Garment specs", fields:[
+      OPT("Fabric preference",undefined,"e.g. 380gsm fleece, French terry"),
+      REQ("Size range",undefined,"e.g. S – 2XL"),
+      UPL("Size guide",undefined),
+      OPT("Drawstring preference",undefined,"e.g. matching flat cotton cord"),
+      OPT("Pocket / hardware",undefined,"e.g. kangaroo, no zip"),
+      OPT("Fleece interior",undefined,"e.g. brushed / unbrushed"),
+    ]},
+    {title:"Auxiliary items", fields:[
+      OPT("Custom neck tag?",undefined,"Yes / No"),
+      UPL("Custom hang tag",undefined),
+    ]},
+  ]},
+
+  crewneck:{ label:"Crewneck Sweatshirt", sections:[
+    {title:"Design", fields:[
+      UPL("Logo / artwork file",undefined),
+      REQ("Placement",undefined,"e.g. center chest"),
+      REQ("Colorways",undefined,"e.g. black, natural, slate"),
+    ]},
+    {title:"Garment specs", fields:[
+      OPT("Fabric",undefined,"e.g. 320gsm cotton fleece"),
+      REQ("Size range",undefined,"e.g. XS – 2XL"),
+      UPL("Size guide",undefined),
+      OPT("Rib cuff / hem color",undefined,"e.g. matching / contrast"),
+    ]},
+    {title:"Auxiliary", fields:[OPT("Custom neck tag?",undefined,"Yes / No"), UPL("Hang tag",undefined)]},
+  ]},
+
+  tanktop:{ label:"Tank Top", sections:[
+    {title:"Design", fields:[
+      UPL("Logo file",undefined),
+      REQ("Placement",undefined,"e.g. center chest / upper back"),
+      REQ("Colorways",undefined,"e.g. white, black, clay"),
+    ]},
+    {title:"Garment specs", fields:[
+      OPT("Fabric",undefined,"e.g. 160gsm ribbed cotton"),
+      REQ("Strap style",undefined,"e.g. wide / spaghetti / racerback"),
+      OPT("Length",undefined,"e.g. cropped / standard / longline"),
+      REQ("Size range",undefined,"e.g. XS – XL"),
+      UPL("Size guide",undefined),
+    ]},
+    {title:"Auxiliary", fields: APPAREL_AUX},
+  ]},
+
+  shorts:{ label:"Shorts", sections:[
+    {title:"Design", fields:[
+      UPL("Logo file",undefined),
+      REQ("Placement",undefined,"e.g. left thigh / back right"),
+      REQ("Colorways",undefined,"e.g. black, olive, navy"),
+    ]},
+    {title:"Specs", fields:[
+      OPT("Fabric",undefined,"e.g. nylon, cotton twill, mesh liner"),
+      REQ("Inseam length",undefined,"e.g. 5\" / 7\" / 9\""),
+      REQ("Waistband style",undefined,"e.g. elastic + drawcord / structured"),
+      OPT("Pockets",undefined,"e.g. 2 side + back patch"),
+      REQ("Size range",undefined,"e.g. XS – 3XL"),
+      UPL("Size guide",undefined),
+    ]},
+    {title:"Auxiliary", fields:[UPL("Hang tag",undefined), OPT("Interior label?",undefined,"Yes / No")]},
+  ]},
+
+  hat:{ label:"Cap / Hat", sections:[
+    {title:"Design & embroidery", fields:[
+      UPL("Logo / embroidery file","Vector or high-res. We convert to DST stitch file — fee may apply."),
+      REQ("Logo size (cm)","Standard front panel ~12 cm. Larger spans both panels — may require negotiation and a small extra fee.","e.g. 18 cm across both front panels"),
+      REQ("Thread colors","Pantone codes preferred. List each thread separately.","e.g. white fill, gold outline — PMS 116"),
+      REQ("Placement",undefined,"e.g. front center + back text"),
+    ]},
+    {title:"Hat specs", fields:[
+      REQ("Style",undefined,"e.g. 6-panel structured snapback / dad hat / bucket"),
+      REQ("Colorway",undefined,"e.g. all black / black body + grey brim"),
+      OPT("Closure type",undefined,"e.g. snapback / strapback / fitted"),
+      UPL("Reference image",undefined),
+    ]},
+    {title:"Auxiliary", fields:[OPT("Custom sweatband label?",undefined,"Yes / No"), UPL("Hang tag",undefined)]},
+  ]},
+
+  socks:{ label:"Socks", sections:[
+    {title:"Design", fields:[
+      UPL("Design file","For knit-in or printed pattern."),
+      REQ("Placement",undefined,"e.g. ankle hit / full calf / all-over"),
+      REQ("Colorways",undefined,"e.g. white base + terracotta / black"),
+    ]},
+    {title:"Specs", fields:[
+      REQ("Style",undefined,"e.g. ankle / crew / no-show / knee-high"),
+      OPT("Material blend",undefined,"e.g. 80% cotton, 15% nylon, 5% elastane"),
+      REQ("Size(s)",undefined,"e.g. one-size / S–M / L–XL"),
+      OPT("Knit method","Jacquard knit vs. embroidered vs. sublimation.","e.g. jacquard knit-in"),
+    ]},
+    {title:"Auxiliary", fields:[OPT("Custom card / band wrap?",undefined,"Yes / No"), UPL("Band design file",undefined)]},
+  ]},
+
+  plush:{ label:"Plushie", sections:[
+    {title:"Design files", fields:[
+      UPL("Character design — all angles","Front, back, and side views. Required before factory can quote."),
+      UPL("3D file (STL / OBJ)","For custom vinyl face molds. If unavailable, supplier's engineering team can produce — fee applies."),
+      REQ("3D print as first sample OK?","Saying yes fast-tracks the process before committing to mold tooling. Recommended.","Yes / No"),
+    ]},
+    {title:"Plush specifications", fields:[
+      REQ("Finished size (cm)",undefined,"e.g. 20 × 12 × 10 cm (H × W × D)"),
+      REQ("Fur type & color",undefined,"e.g. short-pile, off-white"),
+      REQ("Face type","Custom vinyl face (mold required), embroidered, or printed fabric?","e.g. custom vinyl face"),
+      OPT("Fill material",undefined,"e.g. standard PP cotton"),
+      OPT("Accessories / details",undefined,"e.g. mini hoodie, keyring loop"),
+    ]},
+    {title:"Packaging", fields:[
+      REQ("Packaging type",undefined,"e.g. branded polybag / window box / none"),
+      UPL("Box / bag design file",undefined),
+      UPL("Hang tag",undefined),
+    ]},
+  ]},
+
+  blindbox:{ label:"Blind Box", sections:[
+    {title:"Design files", fields:[
+      UPL("Character design — all angles","Required for each variant in the series."),
+      UPL("3D file (STL / OBJ)","For mold production. Sculpting from 2D available at extra fee."),
+      REQ("3D print as first sample OK?","Validates look before mold tooling — saves time and cost.","Yes / No"),
+    ]},
+    {title:"Figure specifications", fields:[
+      REQ("Finished size (cm)",undefined,"e.g. 18 × 10 × 8 cm"),
+      REQ("Material",undefined,"e.g. plush + vinyl face / full PVC / resin"),
+      REQ("Number of variants in series",undefined,"e.g. 6 regular + 1 secret"),
+      OPT("Secret / chase ratio",undefined,"e.g. 1 chase per 12 boxes"),
+    ]},
+    {title:"Blind box packaging", fields:[
+      UPL("Box design file","Print-ready PDF or AI. Window cut-out? Opaque?"),
+      REQ("Inner foil / mystery bag?","Required for the true blind box experience.","Yes / No"),
+      UPL("Collector card design","Must coordinate with box palette and colorways."),
+      OPT("Interior structure","Cardboard cradle, foam insert, or snug fit?","e.g. EVA foam cradle"),
+      OPT("Outer display / PDQ tray?","Retail tray holding multiple boxes.","Yes / No"),
+    ]},
+  ]},
+
+  actionfig:{ label:"Action Figure", sections:[
+    {title:"Design files", fields:[
+      UPL("Character design — full turnaround","360° reference: front, back, side, face close-up."),
+      UPL("3D sculpt file (STL / OBJ / ZBrush)","If available. Factory sculptor can produce from 2D — fee applies."),
+    ]},
+    {title:"Figure specs", fields:[
+      REQ("Scale / height",undefined,"e.g. 15 cm / 1:12 scale / 1:6 scale"),
+      REQ("Material",undefined,"e.g. ABS + PVC / resin / HIPS"),
+      REQ("Points of articulation",undefined,"e.g. 20 POA / static / 5-point"),
+      OPT("Accessories included",undefined,"e.g. swappable hands, weapon, stand"),
+      UPL("Paint / deco spec","Pantone or paint map for factory reference."),
+    ]},
+    {title:"Packaging", fields:[
+      REQ("Package type",undefined,"e.g. clamshell blister / window box / mailer"),
+      UPL("Package design file",undefined),
+    ]},
+  ]},
+
+  childplush:{ label:"Children's Plush", sections:[
+    {title:"Design files", fields:[
+      UPL("Character design","All angles. Simpler designs reduce cost."),
+    ]},
+    {title:"Plush specs", fields:[
+      REQ("Finished size (cm)",undefined,"e.g. 30 × 20 cm"),
+      REQ("Fur type",undefined,"e.g. ultra-soft minky / short pile"),
+      REQ("Fill material","Must be child-safe (PP cotton or equivalent).","e.g. PP cotton (child-safe)"),
+      REQ("Embroidered features only?","Children's toys must avoid small detachable parts. Embroidered eyes/nose safest.","Yes — embroidered only / No"),
+    ]},
+    {title:"Safety & compliance", fields:[
+      REQ("ASTM / EN71 certification needed?",undefined,"Yes / No / Unsure — we can arrange"),
+      REQ("Age range labeling",undefined,"e.g. 3+ / 0+"),
+      REQ("Country of sale","Safety requirements vary by market.","e.g. USA, EU, UK"),
+    ]},
+    {title:"Packaging", fields:[
+      REQ("Packaging type",undefined,"e.g. polybag with header card / window box"),
+      UPL("Design file",undefined),
+    ]},
+  ]},
+
+  minifig:{ label:"Mini Figure / Vinyl Toy", sections:[
+    {title:"Design files", fields:[
+      UPL("Character / sculpt reference","All angles. 3D file preferred."),
+      UPL("3D file (STL / OBJ)","Required for mold. Sculpting from 2D available."),
+    ]},
+    {title:"Figure specs", fields:[
+      REQ("Height (cm)",undefined,"e.g. 8 cm / 15 cm"),
+      REQ("Material",undefined,"e.g. soft vinyl / hard PVC / resin"),
+      REQ("Paint finish",undefined,"e.g. matte / gloss / hand-painted deco"),
+      OPT("Colorways / editions",undefined,"e.g. 3 colorways + 1 glow-in-dark"),
+    ]},
+    {title:"Packaging", fields:[
+      REQ("Package type",undefined,"e.g. polybag + header / window box / tube"),
+      UPL("Package design file",undefined),
+    ]},
+  ]},
+
+  candle:{ label:"Candle", sections:[
+    {title:"Fragrance & fill", fields:[
+      REQ("Fragrance brief","Describe the scent — notes, mood, references.","e.g. warm amber, cedarwood, light smoke"),
+      OPT("Wax type",undefined,"e.g. coconut-soy blend / paraffin / beeswax"),
+      OPT("Target burn time",undefined,"e.g. 40–50 hrs"),
+    ]},
+    {title:"Vessel & lid", fields:[
+      REQ("Vessel style",undefined,"e.g. frosted glass cylinder / ceramic / tin"),
+      OPT("Vessel dimensions",undefined,"e.g. 8 cm dia × 10 cm tall"),
+      OPT("Lid color / finish",undefined,"e.g. matte black metal lid"),
+      UPL("Vessel reference image",undefined),
+    ]},
+    {title:"Label & packaging", fields:[
+      UPL("Candle label file","Print-ready PDF/AI. Include safe area and bleed marks."),
+      UPL("Outer box design file",undefined),
+      REQ("Interior insert / structure?","Structural insert to prevent jostling, or snug vessel-to-box fit?","e.g. tissue wrap + cradle / snug fit"),
+      OPT("MSDS / safety data","Required for EU/UK import. We can arrange testing.","Available / Needs arranging"),
+    ]},
+  ]},
+
+  mug:{ label:"Mug / Cup", sections:[
+    {title:"Design", fields:[
+      UPL("Logo file",undefined),
+      REQ("Placement",undefined,"e.g. wrap-around / one-side"),
+      REQ("Print method",undefined,"e.g. sublimation / decal / laser engrave"),
+    ]},
+    {title:"Specs", fields:[
+      REQ("Style / material",undefined,"e.g. 11oz ceramic / enamel camp mug / glass"),
+      OPT("Capacity",undefined,"e.g. 11oz / 350ml"),
+      OPT("Handle color",undefined,"e.g. matching / contrasting black"),
+      OPT("Finish",undefined,"e.g. gloss / matte / two-tone"),
+    ]},
+    {title:"Packaging", fields:[OPT("Packaging",undefined,"e.g. gift box / kraft sleeve / none"), UPL("Box design",undefined)]},
+  ]},
+
+  poster:{ label:"Art Print / Poster", sections:[
+    {title:"Artwork", fields:[
+      UPL("Print file","300dpi minimum. PDF or TIF preferred. Include bleed marks."),
+      REQ("Color profile",undefined,"e.g. CMYK / Pantone spot colors"),
+    ]},
+    {title:"Print specs", fields:[
+      REQ("Dimensions",undefined,"e.g. A2 / 18×24\" / 50×70 cm"),
+      OPT("Paper stock",undefined,"e.g. 200gsm silk / 170gsm uncoated"),
+      OPT("Finish",undefined,"e.g. matte laminate / uncoated / gloss"),
+      REQ("Quantity",undefined,"e.g. 100 / 500"),
+    ]},
+    {title:"Packaging", fields:[OPT("Packaging",undefined,"e.g. tube / flat sleeve / rolled with tissue")]},
+  ]},
+
+  pillow:{ label:"Throw Pillow", sections:[
+    {title:"Design", fields:[
+      UPL("Logo / artwork file",undefined),
+      REQ("Print method",undefined,"e.g. sublimation / embroidery / woven jacquard"),
+      REQ("Colorways",undefined,"e.g. sage green / off-white"),
+    ]},
+    {title:"Specs", fields:[
+      REQ("Size",undefined,"e.g. 45 × 45 cm / 18×18\""),
+      OPT("Cover material",undefined,"e.g. velvet / linen blend / polyester"),
+      REQ("Insert included?",undefined,"Yes — PP fill / Yes — feather / Cover only"),
+      OPT("Closure type",undefined,"e.g. invisible zip / envelope back"),
+    ]},
+  ]},
+
+  notebook:{ label:"Notebook / Journal", sections:[
+    {title:"Cover design", fields:[
+      UPL("Cover artwork file","Print-ready with bleed."),
+      OPT("Cover finish",undefined,"e.g. soft touch matte / gloss / cloth"),
+      OPT("Foil / emboss?",undefined,"Yes — gold foil / No"),
+    ]},
+    {title:"Interior specs", fields:[
+      REQ("Page count",undefined,"e.g. 96pp / 192pp"),
+      REQ("Ruling",undefined,"e.g. blank / lined / dot grid / graph"),
+      OPT("Paper weight",undefined,"e.g. 80gsm / 100gsm"),
+      REQ("Binding type",undefined,"e.g. perfect bound / sewn / spiral"),
+      REQ("Dimensions",undefined,"e.g. A5 / A6 / 5×8\""),
+    ]},
+    {title:"Extras", fields:[OPT("Ribbon bookmark?",undefined,"Yes / No"), OPT("Elastic closure?",undefined,"Yes / No"), OPT("Back pocket?",undefined,"Yes / No")]},
+  ]},
+
+  tote:{ label:"Tote Bag", sections:[
+    {title:"Design", fields:[
+      UPL("Logo / artwork file",undefined),
+      REQ("Print method",undefined,"e.g. screen print, one color"),
+      REQ("Placement",undefined,"e.g. center front"),
+      REQ("Colorways",undefined,"e.g. natural cotton / black"),
+    ]},
+    {title:"Bag specs", fields:[
+      OPT("Fabric",undefined,"e.g. 12oz natural canvas / recycled cotton"),
+      OPT("Dimensions",undefined,"e.g. 38 × 42 × 10 cm"),
+      OPT("Strap length / style",undefined,"e.g. 60 cm shoulder straps"),
+      OPT("Gusset?",undefined,"e.g. 10 cm side gusset / flat"),
+      OPT("Interior pocket?",undefined,"Yes / No"),
+    ]},
+    {title:"Auxiliary", fields:[OPT("Interior woven label?",undefined,"Yes / No"), OPT("Individual poly bag?",undefined,"Yes / No")]},
+  ]},
+
+  backpack:{ label:"Backpack", sections:[
+    {title:"Design", fields:[
+      UPL("Logo file",undefined),
+      REQ("Placement",undefined,"e.g. front panel / woven label on strap"),
+      REQ("Colorways",undefined,"e.g. black / olive"),
+    ]},
+    {title:"Specs", fields:[
+      REQ("Style",undefined,"e.g. daypack / rolltop / school / mini"),
+      REQ("Material",undefined,"e.g. 600D polyester / waxed canvas / nylon"),
+      OPT("Capacity (litres)",undefined,"e.g. 20L / 30L"),
+      OPT("Interior compartments",undefined,"e.g. laptop sleeve, organizer pockets"),
+      OPT("Hardware / zipper color",undefined,"e.g. gunmetal / gold / black"),
+      UPL("Reference image",undefined),
+    ]},
+  ]},
+
+  phonecase:{ label:"Phone Case", sections:[
+    {title:"Design", fields:[
+      UPL("Case artwork file","Print-ready at correct case dimensions."),
+      REQ("Print method",undefined,"e.g. UV print / sublimation / insert"),
+    ]},
+    {title:"Specs", fields:[
+      REQ("Device model(s)",undefined,"e.g. iPhone 15 Pro, Samsung S24"),
+      REQ("Case style",undefined,"e.g. hard shell / clear / MagSafe / wallet"),
+      OPT("Material",undefined,"e.g. polycarbonate / TPU / leather"),
+    ]},
+  ]},
+
+  keychain:{ label:"Keychain / Charm", sections:[
+    {title:"Design", fields:[
+      UPL("Artwork / sculpt file","Vector for flat keychains. 3D file for sculpted charms."),
+    ]},
+    {title:"Specs", fields:[
+      REQ("Style",undefined,"e.g. acrylic charm / soft enamel / die-cast / rubber"),
+      REQ("Dimensions",undefined,"e.g. 5 × 4 cm"),
+      OPT("Finish",undefined,"e.g. gloss / matte / glitter / glow-in-dark"),
+      OPT("Hardware",undefined,"e.g. split ring + lobster clasp / ball chain"),
+      REQ("Colorways",undefined,"e.g. full color print / 3 spot colors"),
+    ]},
+    {title:"Packaging", fields:[OPT("Backing card / bag",undefined,"e.g. branded backing card / polybag"), UPL("Backing card design",undefined)]},
+  ]},
+
+  patch:{ label:"Embroidered Patch", sections:[
+    {title:"Design", fields:[
+      UPL("Artwork file","Vector preferred. Simple shapes embroider best — we'll advise."),
+      REQ("Thread colors","Pantone codes preferred.","e.g. 4 colors — PMS 116, 187, 286, white"),
+    ]},
+    {title:"Specs", fields:[
+      REQ("Dimensions",undefined,"e.g. 8 × 6 cm"),
+      REQ("Border style",undefined,"e.g. merrowed / laser cut / iron-on backing"),
+      REQ("Backing type",undefined,"e.g. iron-on / sew-on / velcro"),
+      OPT("Embroidery coverage","100% fill vs. partial fill with felt base.","e.g. 80% fill on black felt"),
+    ]},
+  ]},
+
+  sticker:{ label:"Sticker / Sheet", sections:[
+    {title:"Artwork", fields:[
+      UPL("Design file(s)","Vector or 300dpi PNG with transparent background."),
+    ]},
+    {title:"Specs", fields:[
+      REQ("Format",undefined,"e.g. individual die-cut / sticker sheet / kiss-cut"),
+      REQ("Dimensions",undefined,"e.g. 7 × 5 cm each / A5 sheet"),
+      REQ("Material / finish",undefined,"e.g. matte white vinyl / holographic / clear"),
+      OPT("Waterproof / UV-resistant?",undefined,"Yes / No"),
+      REQ("Quantity",undefined,"e.g. 500 individual / 200 sheets"),
+    ]},
+  ]},
+
+  card:{ label:"Collector Card", sections:[
+    {title:"Design", fields:[
+      UPL("Card front design","300dpi minimum with bleed."),
+      UPL("Card back design",undefined),
+    ]},
+    {title:"Specs", fields:[
+      REQ("Dimensions",undefined,"e.g. standard 63×88mm / poker size / custom"),
+      OPT("Card stock weight",undefined,"e.g. 300gsm / 350gsm"),
+      REQ("Finish",undefined,"e.g. gloss laminate / matte / linen / foil"),
+      OPT("Foil / spot UV?",undefined,"e.g. gold foil on title / spot UV on logo"),
+      REQ("Number of designs in set",undefined,"e.g. 12 / 30 cards"),
+      REQ("Quantity per design",undefined,"e.g. 500 of each / 1000 total"),
+    ]},
+    {title:"Packaging", fields:[UPL("Pack / sleeve design",undefined), OPT("Cards per pack",undefined,"e.g. 5 / 10")]},
+  ]},
+
+  packaging:{ label:"Custom Box / Packaging", sections:[
+    {title:"Design files", fields:[
+      UPL("Box dieline file","AI or PDF with dieline. We can produce one if needed."),
+      UPL("Print artwork","300dpi, CMYK, with bleed."),
+    ]},
+    {title:"Box specs", fields:[
+      REQ("Box style",undefined,"e.g. mailer box / tuck-end / rigid lid+base / sleeve"),
+      REQ("Internal dimensions",undefined,"e.g. 20 × 15 × 8 cm"),
+      OPT("Board weight / material",undefined,"e.g. 350gsm E-flute / 2mm greyboard"),
+      OPT("Exterior finish",undefined,"e.g. matte laminate / soft touch / uncoated kraft"),
+      OPT("Foil / emboss / spot UV?",undefined,"Yes — gold foil on logo / No"),
+      OPT("Interior print?",undefined,"e.g. printed interior / plain white"),
+      OPT("Interior structure?","EVA foam, cardboard cradle, tissue wrap, etc.","e.g. EVA foam insert / cardboard tray"),
+    ]},
+  ]},
+
+  zine:{ label:"Zine / Booklet", sections:[
+    {title:"Files", fields:[
+      UPL("Interior pages (PDF)","300dpi, CMYK, with bleed on all pages."),
+      UPL("Cover file (PDF / AI)",undefined),
+    ]},
+    {title:"Specs", fields:[
+      REQ("Finished size",undefined,"e.g. A5 / 5.5×8.5\" / custom"),
+      REQ("Page count","Must be divisible by 4.","e.g. 24pp / 48pp"),
+      OPT("Cover stock",undefined,"e.g. 250gsm gloss / uncoated 300gsm"),
+      OPT("Interior stock",undefined,"e.g. 120gsm uncoated / 90gsm silk"),
+      REQ("Binding",undefined,"e.g. saddle stitch / perfect bound / risograph"),
+      REQ("Color",undefined,"e.g. full color / 2-color riso / black + 1 spot"),
+    ]},
+  ]},
+
+  custom:{ label:"Custom item", sections:[
+    {title:"Describe your product", fields:[
+      {name:"Product description",tag:"req",desc:"What is it? What is it made of? What does it do?",type:"textarea",ph:"Describe the item in as much detail as you have…"},
+      UPL("Reference images","Photos, sketches, or inspiration."),
+      OPT("Finished dimensions",undefined,"Approximate size"),
+      OPT("Material preference",undefined,"e.g. ABS plastic / silicone / fabric"),
+      UPL("Existing design files","Upload anything — STL, AI, PDF, scan."),
+    ]},
+    {title:"Packaging", fields:[
+      REQ("Packaging needed?",undefined,"e.g. branded box / polybag / none"),
+      UPL("Packaging design file",undefined),
+    ]},
+  ]},
+};
+
+/* ── STATE ── */
+let selGroup = null, selType = null;
+
+function renderGroups() {
+  const el = document.getElementById('groupGrid');
+  el.innerHTML = '';
+  GROUPS.forEach(g => {
+    const b = document.createElement('button');
+    b.className = 'group-btn' + (selGroup === g.id ? ' active' : '');
+    b.innerHTML = `<span class="g-icon">${g.icon}</span><span class="g-name">${g.name}</span><span class="g-count">${g.count}</span>`;
+    b.addEventListener('click', () => pickGroup(g.id));
+    el.appendChild(b);
+  });
+}
+
+function pickGroup(gid) {
+  if (selGroup === gid) return;
+  selGroup = gid; selType = null;
+  renderGroups();
+  const g = GROUPS.find(x => x.id === gid);
+  document.getElementById('step2Label').textContent = g.name + ' — pick a type';
+  const pills = document.getElementById('typePills');
+  pills.innerHTML = '';
+  g.types.forEach(t => {
+    const p = document.createElement('button');
+    p.className = 'type-pill';
+    p.textContent = t.name;
+    p.addEventListener('click', () => pickType(t.id, t.name));
+    pills.appendChild(p);
+  });
+  document.getElementById('step2Wrap').classList.remove('hidden');
+  document.getElementById('crumb').classList.add('hidden');
+  document.getElementById('b1').className = 'step-badge done';
+  document.getElementById('b2').className = 'step-badge on';
+  clearRight();
+}
+
+function pickType(tid, tname) {
+  selType = tid;
+  document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.textContent === tname));
+  const g = GROUPS.find(x => x.id === selGroup);
+  document.getElementById('cg').textContent = g.name;
+  document.getElementById('ct').textContent = tname;
+  document.getElementById('crumb').classList.remove('hidden');
+  document.getElementById('b2').className = 'step-badge done';
+  renderRight(tid);
+}
+
+document.getElementById('cx').addEventListener('click', () => {
+  selGroup = null; selType = null;
+  renderGroups();
+  document.getElementById('step2Wrap').classList.add('hidden');
+  document.getElementById('crumb').classList.add('hidden');
+  clearRight();
+  document.getElementById('b1').className = 'step-badge on';
+  document.getElementById('b2').className = 'step-badge';
+});
+
+function renderRight(tid) {
+  const data = CATALOG[tid];
+  if (!data) return;
+  const area = document.getElementById('fieldArea');
+  area.innerHTML = '';
+  let count = 0;
+  data.sections.forEach(sec => {
+    const block = document.createElement('div');
+    block.className = 'section-block';
+    const div = document.createElement('div');
+    div.className = 'section-title';
+    div.textContent = sec.title;
+    block.appendChild(div);
+    sec.fields.forEach((f, fi) => {
+      count++;
+      const item = document.createElement('div');
+      item.className = 'f-item';
+      item.style.animationDelay = (fi * 0.03) + 's';
+      const tagLabel = {req:'Required',upl:'File upload',opt:'Optional'}[f.tag];
+      let inp;
+      if (f.type === 'upload') {
+        inp = `<div class="upload-zone"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 4l3-3 3 3M2 11h10" stroke="#B07848" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Click to upload or drag file here</div>`;
+      } else if (f.type === 'textarea') {
+        inp = `<textarea class="f-textarea" rows="3" placeholder="${f.ph||''}"></textarea>`;
+      } else {
+        inp = `<input class="f-input" type="text" placeholder="${f.ph||''}" />`;
+      }
+      item.innerHTML = `<div class="f-name">${f.name}</div><div class="f-tag ${f.tag}">${tagLabel}</div>${f.desc?`<div class="f-desc">${f.desc}</div>`:''}<div class="f-input-wrap">${inp}</div>`;
+      block.appendChild(item);
+    });
+    area.appendChild(block);
+  });
+  document.getElementById('rTitle').textContent = data.label;
+  document.getElementById('rCount').textContent = count + ' fields';
+  document.getElementById('emptyState').style.display = 'none';
+  area.classList.remove('hidden');
+}
+
+function clearRight() {
+  document.getElementById('fieldArea').classList.add('hidden');
+  document.getElementById('fieldArea').innerHTML = '';
+  document.getElementById('emptyState').style.display = '';
+  document.getElementById('rTitle').textContent = 'Product details';
+  document.getElementById('rCount').textContent = '';
+}
+
+renderGroups();
+</script>
+</body>
+</html>
